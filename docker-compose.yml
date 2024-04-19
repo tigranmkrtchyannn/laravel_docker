@@ -1,0 +1,45 @@
+version: "3.7"
+
+services:
+  mysql:
+    image: mysql:8.1
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: USER
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_PASSWORD: password
+      MYSQL_USER: newuser
+    volumes:
+        - ./docker/volume_mysql:/var/lib/mysql
+    networks:
+      - laravel
+
+
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: container_php
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+    networks:
+      - laravel
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "8001:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker-compose/nginx:/etc/nginx/conf.d
+    networks:
+      - laravel
+
+networks:
+  laravel:
+    driver: bridge
